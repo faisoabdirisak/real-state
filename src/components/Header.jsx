@@ -1,11 +1,24 @@
-import React from "react";
+import {useEffect, useState} from "react";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
+import {getAuth, onAuthStateChanged} from "firebase/auth"
 import realState from "../assets/real-removebg-preview.png";
 export default function Header() {
+  const [pageState, setPageState] = useState("sign-in")
   const location = useLocation();
   console.log(location.pathname);
   const navigate = useNavigate();
+  const auth=getAuth()
+  useEffect(()=>{
+    onAuthStateChanged(auth, (user)=>{
+      if(user){
+        setPageState("Profile")
+      }
+      else{
+        setPageState("Sign in")
+      }
+    })
+  },[auth])
   function pathMatchRoute(route) {
     if (route === location.pathname) {
       return true;
@@ -42,11 +55,11 @@ export default function Header() {
             <li
               className={`cursor-pointer py-3 text-sm font-semibold text-gray-400 border-b-[3px ] border-b-transparent
                  ${
-                   pathMatchRoute("/sign-in") && "text-black border-b-red-500 "
+                   (pathMatchRoute("/sign-in") || pathMatchRoute("/profile"))  && "text-black border-b-red-500"
                  }`}
-                 onClick={()=>navigate("/sign-in")}
+                 onClick={()=>navigate("/profile")}
             >
-              Sign in
+              {pageState}
             </li>
           </ul>
         </div>
